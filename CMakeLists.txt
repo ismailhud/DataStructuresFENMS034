@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Fetch doctest for testing
+# Add FetchContent for downloading doctest
 include(FetchContent)
 FetchContent_Declare(
         doctest
@@ -18,35 +18,36 @@ FetchContent_MakeAvailable(doctest)
 if (MSVC)
     add_compile_options(/W4)
 else()
-    add_compile_options(-Wall -Wextra -pedantic)
+    add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
 
-# Include directory
-include_directories(${PROJECT_SOURCE_DIR}/include)
-
-# Optional main executable (for local demo)
-add_executable(XorLinkedList
+# Source files
+set(SOURCES
         src/main.cpp
 )
-# Add headers just for IDE recognition
-target_sources(XorLinkedList PRIVATE
+
+# Header files (for IDE completion)
+set(HEADERS
         include/XorLinkedList.h
         include/XorLinkedList.tpp
         include/Node.h
 )
+
+# Add include directory
+include_directories(${PROJECT_SOURCE_DIR}/include)
+
+# Main executable
+add_executable(XorLinkedList ${SOURCES} ${HEADERS})
 
 # Enable testing
 enable_testing()
 
-# Test executable (autograder will use this)
-add_executable(tests
+# Test executable (must be named Test to match workflow)
+add_executable(Test
         test/tests.cpp
-        include/XorLinkedList.h
-        include/XorLinkedList.tpp
-        include/Node.h
+        ${HEADERS}
 )
 
-target_link_libraries(tests PRIVATE doctest::doctest)
+target_link_libraries(Test PRIVATE doctest::doctest)
 
-# Register test
-add_test(NAME XorLinkedListTests COMMAND tests)
+add_test(NAME XorLinkedListTests COMMAND Test)
